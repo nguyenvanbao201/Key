@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>VB KEY</title>
+</head>
+<body>
+
+<h2>KEY</h2>
+
+<button onclick="getKey()">Lấy Key</button>
+
+<p id="msg"></p>
+
+<script>
+function createKey() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let key = "VBTOOL-";
+
+    for(let i = 0; i < 10; i++) {
+        key += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    return key;
+}
+
+function getToday() {
+    return new Date().toISOString().split('T')[0];
+}
+
+function getKey() {
+    let lastDay = localStorage.getItem("last_day");
+    let today = getToday();
+    let savedKey = localStorage.getItem("user_key");
+
+    if(lastDay === today && savedKey) {
+        document.getElementById("msg").innerHTML =
+            "Key hôm nay: <b>" + savedKey + "</b><br><br>" +
+            "Bạn đã lấy key hôm nay rồi!";
+        return;
+    }
+
+    let key = createKey();
+
+    localStorage.setItem("user_key", key);
+    localStorage.setItem("last_day", today);
+
+    document.getElementById("msg").innerHTML =
+        "Key của bạn: <b>" + key + "</b>";
+}
+
+let savedKey = localStorage.getItem("user_key");
+let lastDay = localStorage.getItem("last_day");
+
+if(savedKey && lastDay === getToday()) {
+    document.getElementById("msg").innerHTML =
+        "Key hôm nay: <b>" + savedKey + "</b>";
+}
+</script>
+
+</body>
+</html>
