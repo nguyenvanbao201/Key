@@ -1,37 +1,43 @@
-name: Create Daily Key
+<script>
+    function randomKey(length = 12) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let key = "VTH-";
 
-on:
-  schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+        for (let i = 0; i < length; i++) {
+            key += chars[Math.floor(Math.random() * chars.length)];
+        }
 
-jobs:
-  create-key:
-    runs-on: ubuntu-latest
+        return key;
+    }
 
-    steps:
-      - uses: actions/checkout@v4
+    function getKey() {
+        const oldKey = localStorage.getItem("user_key");
+        const expire = localStorage.getItem("expire_time");
 
-      - name: Generate key file
-        run: |
-          python << EOF
-          import json
-          import secrets
-          from datetime import datetime
+        // Nếu key cũ còn hạn thì dùng lại
+        if (oldKey && expire && Date.now() < Number(expire)) {
+            document.getElementById("result").innerText =
+                "Key hiện tại: " + oldKey;
+            return;
+        }
 
-          data = {
-              "date": datetime.utcnow().strftime("%Y-%m-%d"),
-              "key": "VB-" + secrets.token_hex(4).upper()
-          }
+        // Tạo key mới khi chưa có hoặc đã hết hạn
+        const newKey = randomKey();
+        const newExpire = Date.now() + 24 * 60 * 60 * 1000;
 
-          with open("key.json", "w") as f:
-              json.dump(data, f, indent=4)
-          EOF
+        localStorage.setItem("user_key", newKey);
+        localStorage.setItem("expire_time", newExpire);
 
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add key.json
-          git commit -m "Update daily key" || exit 0
-          git push
+        document.getElementById("result").innerText =
+            "Key: " + newKey;
+    }
+
+    // Tự hiển thị key khi tải trang
+    const key = localStorage.getItem("user_key");
+    const expire = localStorage.getItem("expire_time");
+
+    if (key && expire && Date.now() < Number(expire)) {
+        document.getElementById("result").innerText =
+            "Key hiện tại: " + key;
+    }
+</script>
