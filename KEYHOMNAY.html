@@ -18,15 +18,13 @@ function getKey() {
     let today = getToday();
     let lastDay = localStorage.getItem("last_day");
     let savedKey = localStorage.getItem("user_key");
-
-    // Nếu đã lấy hôm nay thì hiện lại key cũ
+    
     if(lastDay === today && savedKey) {
         document.getElementById("msg").innerHTML =
             "Key của bạn: <b>" + savedKey + "</b>";
         return;
     }
 
-    // Tạo key mới
     let newKey = createKey();
 
     localStorage.setItem("user_key", newKey);
@@ -35,8 +33,7 @@ function getKey() {
     document.getElementById("msg").innerHTML =
         "Key của bạn: <b>" + newKey + "</b>";
 }
-
-// Tự hiển thị key hiện tại khi mở trang
+    
 let savedKey = localStorage.getItem("user_key");
 let lastDay = localStorage.getItem("last_day");
 
