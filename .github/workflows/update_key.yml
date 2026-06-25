@@ -1,4 +1,4 @@
-name: Update Daily Key
+name: Update Daily Key v2
 
 on:
   schedule:
