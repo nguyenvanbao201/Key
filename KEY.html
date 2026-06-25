@@ -31,9 +31,11 @@ function getToday() {
 function getKey() {
     let lastDay = localStorage.getItem("last_day");
     let today = getToday();
+    let savedKey = localStorage.getItem("user_key");
 
-    if(lastDay === today) {
+    if(lastDay === today && savedKey) {
         document.getElementById("msg").innerHTML =
+            "Key hôm nay: <b>" + savedKey + "</b><br><br>" +
             "Bạn đã lấy key hôm nay rồi!";
         return;
     }
