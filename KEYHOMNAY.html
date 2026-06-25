@@ -1,0 +1,47 @@
+<script>
+function createKey() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let key = "VTH-";
+
+    for(let i = 0; i < 10; i++) {
+        key += chars[Math.floor(Math.random() * chars.length)];
+    }
+
+    return key;
+}
+
+function getToday() {
+    return new Date().toISOString().split('T')[0];
+}
+
+function getKey() {
+    let today = getToday();
+    let lastDay = localStorage.getItem("last_day");
+    let savedKey = localStorage.getItem("user_key");
+
+    // Nếu đã lấy hôm nay thì hiện lại key cũ
+    if(lastDay === today && savedKey) {
+        document.getElementById("msg").innerHTML =
+            "Key của bạn: <b>" + savedKey + "</b>";
+        return;
+    }
+
+    // Tạo key mới
+    let newKey = createKey();
+
+    localStorage.setItem("user_key", newKey);
+    localStorage.setItem("last_day", today);
+
+    document.getElementById("msg").innerHTML =
+        "Key của bạn: <b>" + newKey + "</b>";
+}
+
+// Tự hiển thị key hiện tại khi mở trang
+let savedKey = localStorage.getItem("user_key");
+let lastDay = localStorage.getItem("last_day");
+
+if(savedKey && lastDay === getToday()) {
+    document.getElementById("msg").innerHTML =
+        "Key của bạn: <b>" + savedKey + "</b>";
+}
+      </script>
