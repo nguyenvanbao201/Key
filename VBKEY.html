@@ -1,0 +1,37 @@
+name: Create Daily Key
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  create-key:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate key file
+        run: |
+          python << EOF
+          import json
+          import secrets
+          from datetime import datetime
+
+          data = {
+              "date": datetime.utcnow().strftime("%Y-%m-%d"),
+              "key": "VB-" + secrets.token_hex(4).upper()
+          }
+
+          with open("key.json", "w") as f:
+              json.dump(data, f, indent=4)
+          EOF
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add key.json
+          git commit -m "Update daily key" || exit 0
+          git push
