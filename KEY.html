@@ -1,7 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lấy Key</title>
+</head>
+<body>
+
+<h2>KEY TOOL</h2>
+
+<button onclick="getKey()">Lấy Key</button>
+
+<p id="msg"></p>
+
 <script>
 function createKey() {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let key = "VTH-";
+    let key = "VBTOOL-";
 
     for(let i = 0; i < 10; i++) {
         key += chars[Math.floor(Math.random() * chars.length)];
@@ -17,17 +31,13 @@ function getToday() {
 function getKey() {
     let lastDay = localStorage.getItem("last_day");
     let today = getToday();
-    let savedKey = localStorage.getItem("user_key");
 
-    // Đã lấy key hôm nay
-    if(lastDay === today && savedKey) {
+    if(lastDay === today) {
         document.getElementById("msg").innerHTML =
-            "Key hôm nay: <b>" + savedKey + "</b><br><br>" +
-            "⚠️ Bạn đã lấy key hôm nay rồi!";
+            "Bạn đã lấy key hôm nay rồi!";
         return;
     }
 
-    // Tạo key mới
     let key = createKey();
 
     localStorage.setItem("user_key", key);
@@ -45,3 +55,6 @@ if(savedKey && lastDay === getToday()) {
         "Key hôm nay: <b>" + savedKey + "</b>";
 }
 </script>
+
+</body>
+</html>
