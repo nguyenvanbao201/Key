@@ -1,0 +1,3 @@
+BOT_TOKEN = ""
+LINK4M_API = ""
+ADMIN_ID = 0
