@@ -1,5 +1,7 @@
 from flask import Flask, redirect, request
 from database import conn, cursor
+from key import get_expire_time
+from telegraph_api import create_key_page
 import random
 import string
 import requests
