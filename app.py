@@ -1,68 +1,101 @@
-from flask import Flask, redirect
-import random
-import string
-import requests
+from flask import Flask, jsonify, request
 
-ACCESS_TOKEN = "829b74b1920c6338f83418830e90b0b0caf879fa906b026f3890f7b3f4f5"
+from database import (
+    create_table,
+    save_key,
+    get_key,
+    use_key,
+    device_exists
+)
+
+from key import generate_key, get_expire_time
+from telegraph_api import create_key_page
+from link4m import create_short_link
+
+from datetime import datetime
 
 app = Flask(__name__)
 
-def create_telegraph_page(key):
-    url = "https://api.telegra.ph/createPage"
+create_table()
 
-    content = f'''[
-        {{
-            "tag":"h3",
-            "children":["VBTool Key"]
-        }},
-        {{
-            "tag":"p",
-            "children":["Key của bạn: {key}"]
-        }}
-    ]'''
-
-    data = {
-        "access_token": ACCESS_TOKEN,
-        "title": "VBTool Key",
-        "author_name": "VBTool",
-        "content": content,
-        "return_content": False
-    }
-
-    try:
-        r = requests.post(url, data=data).json()
-
-        if r.get("ok"):
-            return "https://telegra.ph/" + r["result"]["path"]
-
-        print(r)
-        return None
-
-    except Exception as e:
-        print(e)
-        return None
-
-def create_key():
-    chars = string.ascii_uppercase + string.digits
-    return "VB-" + "-".join(
-        "".join(random.choice(chars) for _ in range(4))
-        for _ in range(4)
-    )
 
 @app.route("/")
 def home():
-    return "VBTool API Online"
+    return "VB TOOL API Running"
 
-@app.route("/create")
-def create():
-    key = create_key()
 
-    telegraph = create_telegraph_page(key)
+@app.route("/get-key")
+def get_key_api():
 
-    if telegraph:
-        return redirect(telegraph)
+    key = generate_key()
 
-    return "Không tạo được Telegraph"
+    created_at, expire_at = get_expire_time()
+
+    telegraph_url = create_key_page(key)
+
+    link4m_url = create_short_link(telegraph_url)
+
+    save_key(
+        key,
+        telegraph_url,
+        link4m_url,
+        created_at,
+        expire_at
+    )
+
+    return jsonify({
+        "status": True,
+        "link": link4m_url
+    })
+
+
+@app.route("/verify-key", methods=["POST"])
+def verify():
+
+    data = request.json
+
+    key = data["key"]
+
+    device = data["device"]
+
+    row = get_key(key)
+
+    if row is None:
+        return jsonify({
+            "status": False,
+            "message": "Key không hợp lệ"
+        })
+
+    if row[7] == 1:
+        return jsonify({
+            "status": False,
+            "message": "Key đã được sử dụng"
+        })
+
+    if device_exists(device):
+        return jsonify({
+            "status": False,
+            "message": "Thiết bị đã kích hoạt"
+        })
+
+    expire = datetime.strptime(
+        row[6],
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    if datetime.now() > expire:
+        return jsonify({
+            "status": False,
+            "message": "Key đã hết hạn"
+        })
+
+    use_key(key, device)
+
+    return jsonify({
+        "status": True,
+        "message": "Xác thực thành công"
+    })
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
