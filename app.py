@@ -129,7 +129,7 @@ def new_key():
     key_type = request.args.get("type", "FREE").upper()
     days = int(request.args.get("days", "1"))
 
-    key = generate_key()
+    key = create_key()
     expire = get_expire_time(days)
 
     page = create_key_page(key, key_type, expire)
