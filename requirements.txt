@@ -1,5 +1,2 @@
-flask
-requests
-python-telegram-bot
-telegraph
-gunicorn
+Flask>=3.0,<4.0
+gunicorn>=23.0,<26.0
